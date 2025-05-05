@@ -5,14 +5,13 @@ import { motion } from 'motion/react'
 
 import Navbar from '@/app/navbar'
 import { Input } from '@/components/ui/input'
+import ContentList from './ContentList'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { GlowEffect } from '@/components/ui/glow-effect'
 
 import { debounce } from '@/lib/utils'
-import { GlowEffect } from '@/components/ui/glow-effect'
 import { searchByName } from '@/lib/tmdb'
 import { SearchByNameResponse } from '@/lib/types'
-import ContentList from './ContentList'
-import { useGSAP } from '@gsap/react'
-import gsap from 'gsap'
 
 export default function SearchPage() {
   const [query, setQuery] = useQueryState('query')
@@ -26,17 +25,6 @@ export default function SearchPage() {
   useEffect(() => {
     searchBoxRef.current?.focus()
   }, [])
-
-  // useGSAP(() => {
-  //   gsap.to('.content__card', {
-  //     opacity: 1,
-  //     filter: 'blur(0)',
-  //     y: 0,
-  //     stagger: 0.1,
-  //     duration: 0.5,
-  //     ease: 'power2.in',
-  //   })
-  // }, [fetchedData])
 
   useEffect(() => {
     if (!query) return
@@ -75,6 +63,7 @@ export default function SearchPage() {
           </motion.div>
           <Input
             placeholder="Search for movie or show..."
+            defaultValue={query as string}
             onChange={e => debouncedSetQuery(e.target.value)}
             ref={searchBoxRef}
             className={`bg-background relative inline-flex`}
@@ -85,16 +74,30 @@ export default function SearchPage() {
             <p>Searching for: {query}</p>
           </div>
           <div className="flex flex-col gap-4">
-            <h2 className="text-4xl font-bold">Movies</h2>
-            <ContentList
-              content={fetchedData?.movies as SearchByNameResponse['movies']}
-              type={'movie'}
-            />
-            <h2 className="text-4xl font-bold">TV Shows</h2>
-            <ContentList
-              content={fetchedData?.tvShows as SearchByNameResponse['tvShows']}
-              type={'tvShow'}
-            />
+            <Tabs defaultValue="tab-1">
+              <TabsList className={`my-4`}>
+                <TabsTrigger value="tab-1">Movies</TabsTrigger>
+                <TabsTrigger value="tab-2">Tv</TabsTrigger>
+              </TabsList>
+              <TabsContent value="tab-1" className={`w-full`}>
+                <h2 className="mb-4 text-4xl font-bold">Movies</h2>
+                <ContentList
+                  content={
+                    fetchedData?.movies as SearchByNameResponse['movies']
+                  }
+                  type={'movie'}
+                />
+              </TabsContent>
+              <TabsContent value="tab-2" className={`w-full`}>
+                <h2 className="mb-4 text-4xl font-bold">TV Shows</h2>
+                <ContentList
+                  content={
+                    fetchedData?.tvShows as SearchByNameResponse['tvShows']
+                  }
+                  type={'tvShow'}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
