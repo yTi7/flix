@@ -1,13 +1,16 @@
 'use client'
 
-import { useSessionContext } from '@/contexts/sessionContext'
+import { SessionContext } from '@/contexts/sessionContext'
+import { use } from 'react'
 
 const Main = () => {
-  const { data, isPending } = useSessionContext()
+  const session = use(SessionContext)
   return (
     <div className={`flex h-screen flex-col items-center justify-center`}>
-      <h1>Hello, {isPending ? 'Loading...' : data?.user?.name}!</h1>
-      <p>Email: {data?.user.email}</p>
+      <h1>
+        Hello, {session?.isPending ? 'Loading...' : session?.data?.user?.name}!
+      </h1>
+      <p>Email: {session?.data?.user.email}</p>
     </div>
   )
 }

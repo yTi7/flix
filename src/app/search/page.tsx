@@ -1,8 +1,9 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { useQueryState } from 'nuqs'
-import { motion } from 'motion/react'
+import { useQuery } from '@tanstack/react-query'
 
+import { motion } from 'motion/react'
 import Navbar from '@/app/navbar'
 import { Input } from '@/components/ui/input'
 import ContentList from './ContentList'
@@ -11,31 +12,22 @@ import { GlowEffect } from '@/components/ui/glow-effect'
 
 import { debounce } from '@/lib/utils'
 import { searchByName } from '@/lib/tmdb'
-import { SearchByNameResponse } from '@/lib/types'
+import { SearchByNameResponse } from '@types'
 
 export default function SearchPage() {
   const [query, setQuery] = useQueryState('query')
-  const [isLoading, setIsLoading] = useState(false)
-  const searchBoxRef = useRef<HTMLInputElement>(null)
-  const [fetchedData, setFetchedData] = useState<SearchByNameResponse | null>(
-    null,
-  )
-  const debouncedSetQuery = useCallback(debounce(setQuery, 500), [])
+  const searchBoxRef = React.useRef<HTMLInputElement>(null)
+  const debouncedSetQuery = React.useCallback(debounce(setQuery, 500), [])
 
-  useEffect(() => {
+  React.useEffect(() => {
     searchBoxRef.current?.focus()
   }, [])
 
-  useEffect(() => {
-    if (!query) return
-    if (query.length < 3) return
-    setIsLoading(true)
-    searchByName(query).then(data => {
-      console.log(data)
-      setFetchedData(data)
-      setIsLoading(false)
-    })
-  }, [query])
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['searchByName', query],
+    queryFn: () => searchByName(query as string),
+    enabled: !!query,
+  })
 
   return (
     <>
@@ -50,7 +42,7 @@ export default function SearchPage() {
               opacity: isLoading ? 1 : 0,
             }}
             transition={{
-              duration: 0.2,
+              duration: 0.15,
               ease: 'easeOut',
             }}
           >
@@ -74,33 +66,39 @@ export default function SearchPage() {
             <p>Searching for: {query}</p>
           </div>
           <div className="flex flex-col gap-4">
-            <Tabs defaultValue="tab-1">
-              <TabsList className={`my-4`}>
-                <TabsTrigger value="tab-1">Movies</TabsTrigger>
-                <TabsTrigger value="tab-2">Tv</TabsTrigger>
-              </TabsList>
-              <TabsContent value="tab-1" className={`w-full`}>
-                <h2 className="mb-4 text-4xl font-bold">Movies</h2>
-                <ContentList
-                  content={
-                    fetchedData?.movies as SearchByNameResponse['movies']
-                  }
-                  type={'movie'}
-                />
-              </TabsContent>
-              <TabsContent value="tab-2" className={`w-full`}>
-                <h2 className="mb-4 text-4xl font-bold">TV Shows</h2>
-                <ContentList
-                  content={
-                    fetchedData?.tvShows as SearchByNameResponse['tvShows']
-                  }
-                  type={'tvShow'}
-                />
-              </TabsContent>
-            </Tabs>
+            <ContentArea fetchedData={data} />
           </div>
         </main>
       </div>
     </>
+  )
+}
+
+function ContentArea({
+  fetchedData,
+}: {
+  fetchedData?: SearchByNameResponse | null
+}) {
+  return (
+    <Tabs defaultValue="tab-1">
+      <TabsList className={`my-4`}>
+        <TabsTrigger value="tab-1">Movies</TabsTrigger>
+        <TabsTrigger value="tab-2">Tv</TabsTrigger>
+      </TabsList>
+      <TabsContent value="tab-1" className={`w-full`}>
+        <h2 className="mb-4 text-4xl font-bold">Movies</h2>
+        <ContentList
+          content={fetchedData?.movies as SearchByNameResponse['movies']}
+          type={'movie'}
+        />
+      </TabsContent>
+      <TabsContent value="tab-2" className={`w-full`}>
+        <h2 className="mb-4 text-4xl font-bold">TV Shows</h2>
+        <ContentList
+          content={fetchedData?.tvShows as SearchByNameResponse['tvShows']}
+          type={'tvShow'}
+        />
+      </TabsContent>
+    </Tabs>
   )
 }

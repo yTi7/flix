@@ -1,9 +1,10 @@
-import { useId, useState } from 'react'
+'use client'
+import React from 'react'
 import { HTMLMotionProps, motion, Variants } from 'motion/react'
 
 import { cn, truncateString } from '@/lib/utils'
 import { getPosterUrl } from '@/lib/tmdb'
-import { Movie, Tv } from '@/lib/types'
+import { Movie, Tv } from '@types'
 
 import { Button } from '@/components/ui/button'
 import { LoaderCircleIcon, Plus } from 'lucide-react'
@@ -20,11 +21,11 @@ export default function ContentCard({
   index = 1,
   type,
 }: ContentCardProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const title = type === 'movie' ? (item as any).title : (item as any).name
   const releaseDate =
     type === 'movie' ? (item as any).release_date : (item as any).first_air_date
-  const id = useId()
+  const id = React.useId()
   const animationDelay = 0.08 * index
 
   function handleOnImageLoad() {
@@ -34,7 +35,7 @@ export default function ContentCard({
   return (
     <motion.div
       key={item.id}
-      className={`content__card flex w-fit cursor-pointer flex-col gap-2 opacity-0 blur-md transition-all hover:scale-105`}
+      className={`content__card flex w-fit cursor-pointer flex-col gap-2 opacity-0 blur-md transition-all`}
       title={title}
       initial={{ opacity: 0, filter: 'blur(12px)' }}
       animate={{
@@ -116,6 +117,9 @@ function ImagePlaceholder({
         ease: 'anticipate',
       }}
       animate={isLoading ? 'visible' : 'hidden'}
+      onAnimationComplete={() => {
+        document.getElementById(props.id as string)?.remove()
+      }}
     >
       <LoaderCircleIcon className={`animate-spin`} />
     </motion.div>

@@ -1,6 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { useSessionContext } from '@/contexts/sessionContext'
+import { SessionContext } from '@/contexts/sessionContext'
 import useKey from '@/hooks/useKey'
 import { signOut } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
@@ -8,7 +8,7 @@ import { CommandIcon, LoaderCircleIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { use } from 'react'
 
 interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   searchHidden?: boolean
@@ -32,7 +32,7 @@ const Navbar = ({ className, searchHidden, ...restProps }: NavbarProps) => {
       router.push('/search')
     },
   )
-  const { data, error, isPending, refetch } = useSessionContext()
+  const session = use(SessionContext)
   return (
     <header className={cn(styles.header, className)} {...restProps}>
       <Link href={'/'} className={styles.logo}>
@@ -52,14 +52,14 @@ const Navbar = ({ className, searchHidden, ...restProps }: NavbarProps) => {
           </Link>
         </div>
 
-        {isPending ? (
+        {session?.isPending ? (
           <Button variant={'default'} size={'sm'} disabled>
             <LoaderCircleIcon className={`animate-spin`} />
           </Button>
-        ) : error ? (
+        ) : session?.error ? (
           <LoginButton />
-        ) : data?.user ? (
-          <LogoutButton refetch={refetch} />
+        ) : session?.data?.user ? (
+          <LogoutButton refetch={session?.refetch} />
         ) : (
           <LoginButton />
         )}

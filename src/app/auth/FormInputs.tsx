@@ -1,5 +1,5 @@
 'use client'
-import { useId, useState } from 'react'
+import React from 'react'
 import { AtSignIcon, EyeIcon, EyeOffIcon } from 'lucide-react'
 
 import { Input } from '@/components/ui/input'
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 type InputProps = React.ComponentPropsWithoutRef<typeof Input>
 
 export function EmailInput({ ...props }: InputProps) {
-  const id = useId()
+  const id = React.useId()
   return (
     <div className="*:not-first:mt-2">
       <div className="relative">
@@ -27,8 +27,8 @@ export function EmailInput({ ...props }: InputProps) {
 }
 
 export function PasswordInput({ ...props }: InputProps) {
-  const id = useId()
-  const [isVisible, setIsVisible] = useState<boolean>(false)
+  const id = React.useId()
+  const [isVisible, setIsVisible] = React.useState<boolean>(false)
 
   const toggleVisibility = () => setIsVisible(prevState => !prevState)
 
