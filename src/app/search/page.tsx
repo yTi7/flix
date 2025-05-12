@@ -66,7 +66,7 @@ export default function SearchPage() {
             <p>Searching for: {query}</p>
           </div>
           <div className="flex flex-col gap-4">
-            <ContentArea fetchedData={data} />
+            <ContentArea fetchedData={data} isLoading={isLoading} />
           </div>
         </main>
       </div>
@@ -76,8 +76,10 @@ export default function SearchPage() {
 
 function ContentArea({
   fetchedData,
+  isLoading,
 }: {
   fetchedData?: SearchByNameResponse | null
+  isLoading?: boolean
 }) {
   return (
     <Tabs defaultValue="tab-1">
@@ -87,6 +89,16 @@ function ContentArea({
       </TabsList>
       <TabsContent value="tab-1" className={`w-full`}>
         <h2 className="mb-4 text-4xl font-bold">Movies</h2>
+        {isLoading && (
+          <div className="flex h-full w-full items-center justify-center">
+            <p>Loading...</p>
+          </div>
+        )}
+        {!isLoading && fetchedData?.movies?.length === 0 && (
+          <div className="flex h-full w-full items-center justify-center">
+            <p>No movies found.</p>
+          </div>
+        )}
         <ContentList
           content={fetchedData?.movies as SearchByNameResponse['movies']}
           type={'movie'}
@@ -94,6 +106,16 @@ function ContentArea({
       </TabsContent>
       <TabsContent value="tab-2" className={`w-full`}>
         <h2 className="mb-4 text-4xl font-bold">TV Shows</h2>
+        {isLoading && (
+          <div className="flex h-full w-full items-center justify-center">
+            <p>Loading...</p>
+          </div>
+        )}
+        {!isLoading && fetchedData?.tvShows?.length === 0 && (
+          <div className="flex h-full w-full items-center justify-center">
+            <p>No TV shows found.</p>
+          </div>
+        )}
         <ContentList
           content={fetchedData?.tvShows as SearchByNameResponse['tvShows']}
           type={'tvShow'}
