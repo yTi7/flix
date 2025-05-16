@@ -1,6 +1,6 @@
 'use client'
 import { useSession } from '@/lib/auth-client'
-import { createContext, useContext } from 'react'
+import { createContext } from 'react'
 
 export type Session = ReturnType<typeof useSession>
 
